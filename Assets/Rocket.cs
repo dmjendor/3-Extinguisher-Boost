@@ -6,10 +6,17 @@ using UnityEngine;
 public class Rocket : MonoBehaviour
 {
     Rigidbody extinguisherBody;
+    AudioSource thrust;
+
+    [SerializeField] float rcsThrust = 150f;
+    [SerializeField] float mainThrust = 60f;
+
+
     // Start is called before the first frame update
     void Start()
     {
         extinguisherBody = GetComponent<Rigidbody>();
+        thrust = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -20,19 +27,56 @@ public class Rocket : MonoBehaviour
 
     private void ProcessInput()
     {
+        Thrust();
+        Rotate();
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        switch (collision.gameObject.tag)
+        {
+            case "Friendly":
+                print("OK");
+                break;
+            case "Fuel":
+                print("Fuel");
+                break;
+            default:
+                print("Dead");
+                break;
+        }            
+    }
+
+    private void Thrust()
+    {
         if (Input.GetKey(KeyCode.Space))
         {
-            extinguisherBody.AddRelativeForce(Vector3.up, ForceMode.Impulse);
+            extinguisherBody.AddRelativeForce(Vector3.up * mainThrust);
+            if (!thrust.isPlaying)
+            {
+                thrust.Play();
+            }
         }
-
-        if (Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.D))
+        else
         {
-            transform.Rotate(Vector3.forward);
-        }
-
-        if (Input.GetKey(KeyCode.D)&& !Input.GetKey(KeyCode.A))
-        {
-            transform.Rotate(-Vector3.forward);
+            thrust.Stop();
         }
     }
+    private void Rotate()
+    {
+
+        float rotationByFrame = rcsThrust * Time.deltaTime;
+        extinguisherBody.freezeRotation = true; // pause physics control
+        if (Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.D))
+        {
+            transform.Rotate(Vector3.forward * rotationByFrame);
+        }
+
+        if (Input.GetKey(KeyCode.D) && !Input.GetKey(KeyCode.A))
+        {
+            transform.Rotate(-Vector3.forward * rotationByFrame);
+        }
+        extinguisherBody.freezeRotation = false; // resume physics control
+    }
+
 }
