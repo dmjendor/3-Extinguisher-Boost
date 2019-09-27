@@ -35,13 +35,13 @@ public class Rocket : MonoBehaviour
     {
         switch (collision.gameObject.tag)
         {
-            case "Friendly":
+            case "Friendly": // no action safe to hit
                 print("OK");
                 break;
-            case "Fuel":
+            case "Fuel": // increase fuel
                 print("Fuel");
                 break;
-            default:
+            default: // kill the player
                 print("Dead");
                 break;
         }            
